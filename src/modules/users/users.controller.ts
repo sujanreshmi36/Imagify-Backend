@@ -1,15 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from '../auth/dto/update-user.dto';
+import { AtGuard } from 'src/middleware/guard/At.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { Response } from 'express';
+import { PromptDto } from './dto/prompt.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Post('generate-image')
+  @UseGuards(AtGuard)
+  @ApiBearerAuth('access-token')
+  create(@Body() promptDto: PromptDto, @Req() req: any) {
+    const id = req.user.id;
+
+    try {
+      const imageBuffer = this.usersService.create(id, promptDto);
+      return imageBuffer;
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   @Get()
@@ -17,9 +29,12 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Get('get-info')
+  @UseGuards(AtGuard)
+  @ApiBearerAuth('access-token')
+  findOne(@Req() req: any) {
+    const id = req.user.id;
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')

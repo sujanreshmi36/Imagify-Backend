@@ -5,6 +5,7 @@ import { User } from 'src/model/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDTO } from './dto/login';
+import { Token } from 'src/helper/utils/token';
 
 Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     @InjectRepository(User)
     private userRepo: Repository<User>,
     private hash: hash,
+    private token: Token
   ) { }
   //register
   async create(signupDTO: CreateUserDto) {
@@ -30,6 +32,7 @@ export class AuthService {
       const savedUser = await this.userRepo.save(user);
       return {
         message: "Registered Successfully.",
+        success: true,
         data: savedUser
       }
 
@@ -41,30 +44,28 @@ export class AuthService {
 
 
 
-  //login
-  // async login(loginDto: LoginDTO) {
-  //   try {
-  //     const user = await this.userRepo.findOne({
-  //       where: { email: loginDto.email }
-  //     });
-  //     const passwordMatched = await bcrypt.compare(
-  //       loginDto.password, user.password
-  //     );
-  //     if (!passwordMatched) {
-  //       throw new ForbiddenException("Invalid email or password")
-  //     }
-  //     const payload = {
-  //       id: user.id,
-  //       email: user.email
-  //     }
-  //     const access_token = jwt.sign({ payload }, authConstants.secret, {
-  //       expiresIn: '60d'
-  //     })
-  //     return { message: "Logedin successfully.", token: access_token }
-  //   } catch (e) {
-  //     throw new BadRequestException(e.message);
-  //   }
-  // }
+  // login
+  async login(loginDto: LoginDTO) {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { email: loginDto.email }
+      });
+      if (!user) {
+        throw new NotFoundException("user doesn't exist");
+      } else {
+        const passwordMatched = await this.hash.verifyHashing(user.password, loginDto.password);
+        if (!passwordMatched) {
+          throw new ForbiddenException("Invalid email or password")
+        }
+
+        const access_token = await this.token.generateAcessToken({ id: user.id, email: user.email })
+        return { message: "Logedin successfully.", token: access_token, user: user.name, status: true }
+      }
+
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
 
   //forgotpassword
   // async forgot(email: string) {

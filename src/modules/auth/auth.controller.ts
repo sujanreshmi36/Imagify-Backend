@@ -1,14 +1,18 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDTO } from './dto/login';
 
 
 
 @Controller('auth')
-@ApiTags('Authorization')
+@ApiTags('Auth')
+@ApiResponse({ status: 201, description: 'Created Successfully' })
+@ApiResponse({ status: 401, description: 'Unathorised request' })
+@ApiResponse({ status: 400, description: 'Bad request' })
+@ApiResponse({ status: 500, description: 'Server Error' })
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
@@ -22,11 +26,11 @@ export class AuthController {
     return this.authService.create(createuserdto);
   }
 
-  // //login
-  // @Post('login')
-  // login(@Body() loginDTO: LoginDTO) {
-  //   return this.authService.login(loginDTO);
-  // }
+  //login
+  @Post('login')
+  login(@Body() loginDTO: LoginDTO) {
+    return this.authService.login(loginDTO);
+  }
 
 
   // //forgot-password
