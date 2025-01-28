@@ -51,7 +51,7 @@ export class AuthService {
         where: { email: loginDto.email }
       });
       if (!user) {
-        throw new NotFoundException("user doesn't exist");
+        throw new NotFoundException("User doesn't exist");
       } else {
         const passwordMatched = await this.hash.verifyHashing(user.password, loginDto.password);
         if (!passwordMatched) {
@@ -59,7 +59,7 @@ export class AuthService {
         }
 
         const access_token = await this.token.generateAcessToken({ id: user.id, email: user.email })
-        return { message: "Logedin successfully.", token: access_token, user: user.name, status: true }
+        return { message: "Logged in successfully.", token: access_token, user: user.name, status: true }
       }
 
     } catch (e) {
