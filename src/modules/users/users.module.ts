@@ -7,10 +7,11 @@ import { JwtService } from '@nestjs/jwt';
 import { AtStrategy } from 'src/middleware/strategies/jwt.strategy';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import axios, { Axios } from 'axios';
+import OpenAI from 'openai';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), HttpModule],
   controllers: [UsersController],
-  providers: [UsersService]
+  providers: [UsersService, OpenAI]
 })
 export class UsersModule { }
