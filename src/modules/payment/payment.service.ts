@@ -18,8 +18,8 @@ export class PaymentService {
   ) { }
   private esewaConfig = {
     merchantId: 'EPAYTEST',
-    successUrl: "https://imagify-saas.netlify.app/payment-success",
-    failureUrl: "https://imagify-saas.netlify.app/payment-failure",
+    successUrl: "https://imagify-frontend-rosy.vercel.app/payment-success",
+    failureUrl: "https://imagify-frontend-rosy.vercel.app/payment-failure",
     esewaPaymentUrl: "https://rc-epay.esewa.com.np/api/epay/main/v2/form",
     secret: "8gBm/:&EnhH.1/q",
   };
