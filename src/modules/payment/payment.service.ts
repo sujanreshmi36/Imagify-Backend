@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
+import { log } from 'console';
 import * as crypto from 'crypto';
 import { paymentEntity } from 'src/model/payment.entity';
 import { User } from 'src/model/user.entity';
@@ -29,6 +30,8 @@ export class PaymentService {
 
     const payment = new paymentEntity();
     payment.amount = amount;
+    console.log(credits);
+
     payment.credits = credits;
     payment.plan = plan;
     payment.user = { id: userId } as User
@@ -81,48 +84,40 @@ export class PaymentService {
 
 
   async changePayment(userId: string, token: string) {
-    const decoded = this.decodeToken('Bearer ' + token);
-    console.log(decoded);
+    const decodeEsewaResponse = (token: string): any => {
+      const jsonString = Buffer.from(token, 'base64').toString('utf-8');
+      return JSON.parse(jsonString);
+    };
+    const decodedData = decodeEsewaResponse(token);
+    const { transaction_uuid } = decodedData;
 
-    // try {
-    //   const user = await this.userRepo.findOne({ where: { id: userId } });
-    //   console.log(user);
-
-    //   if (user) {
-    //     const payment = await this.paymentRepo.findOne({ where: { user: { id: userId } } });
-    //     console.log(payment);
-
-    //     if (payment) {
-    //       payment.payment = true;
-    //       await this.paymentRepo.save(payment);
-    //       user.creditBalance = payment.credits;
-    //       await this.userRepo.save(user);
-    //       return {
-    //         status: true
-    //       }
-    //     } else {
-    //       throw new BadRequestException("payment not found")
-    //     }
-    //   } else {
-    //     throw new BadRequestException("user not found")
-    //   }
-    // } catch (e) {
-    //   throw new BadRequestException(e.message);
-    // }
-  }
-
-  private decodeToken(token: string) {
     try {
-      // Verify and decode the token using the secret key
-      const decoded = this.jwtService.verify(token, {
-        secret: this.esewaConfig.secret,
-      });
+      const user = await this.userRepo.findOne({ where: { id: userId } });
+      if (user) {
+        const payment = await this.paymentRepo.findOne({ where: { user: { id: userId }, id: transaction_uuid } });
+        console.log(payment);
 
-      console.log(decoded);
+        if (payment) {
+          payment.payment = true;
+          await this.paymentRepo.save(payment);
+          if (user.creditBalance !== 0) {
+            user.creditBalance += payment.credits;
+          } else {
+            user.creditBalance = payment.credits
+          }
 
-      return { payload: decoded };  // Return the decoded payload
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
+          await this.userRepo.save(user);
+          return {
+            status: true
+          }
+        } else {
+          throw new BadRequestException("payment not found")
+        }
+      } else {
+        throw new BadRequestException("user not found")
+      }
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
   }
 }
