@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const databaseConfig: TypeOrmModuleOptions = {
     type: "postgres",
+    url: process.env.DB_URL,
     host: process.env.DB_Host,
     port: 57263,
     username: process.env.DB_USERNAME,
