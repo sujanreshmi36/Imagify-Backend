@@ -8,12 +8,9 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: "https://imagify-saas.netlify.app", // Allow only your frontend
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Content-Type, Authorization",
-    credentials: true, // Required if using cookies or authorization headers
+    origin: "*",
+    credentials: true
   });
-
 
   app.setGlobalPrefix('api/v1');
   // app.useStaticAssets(path.join(__dirname, '../uploads'));
