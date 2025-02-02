@@ -30,8 +30,6 @@ export class PaymentService {
 
     const payment = new paymentEntity();
     payment.amount = amount;
-    console.log(credits);
-
     payment.credits = credits;
     payment.plan = plan;
     payment.user = { id: userId } as User

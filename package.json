@@ -37,6 +37,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "form-data": "^4.0.1",
+    "nodemailer": "^6.10.0",
     "openai": "^4.81.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.13.1",

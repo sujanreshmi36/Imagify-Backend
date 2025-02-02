@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDTO } from './dto/login';
+import { MailDto, passwordDto } from './dto/create-auth.dto';
+import { UtGuard } from 'src/middleware/guard/Ut.guard';
 
 
 
@@ -34,17 +36,15 @@ export class AuthController {
 
 
   // //forgot-password
-  // @Post('forgot-password')
-  // forgot(@Body() body: { email: string }) {
-  //   return this.authService.forgot(body.email);
-  // }
+  @Post('forgot-password')
+  forgot(@Body() body: MailDto) {
+    return this.authService.forgotPassword(body);
+  }
 
-  // //rest-password
-  // @Post('reset-password')
-  // reset(
-  //   @Body() body: { password: string },
-  //   @Headers('Authorization') token: string,
-  // ) {
-  //   return this.authService.reset(body.password, token);
-  // }
+  @Patch('update-password')
+  @UseGuards(UtGuard)
+  @ApiBearerAuth('access-token')
+  updatePassword(@Req() req: any, @Body() passwordDto: passwordDto) {
+    return this.authService.updatePassword(req.user, passwordDto);
+  }
 }

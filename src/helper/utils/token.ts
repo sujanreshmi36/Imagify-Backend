@@ -16,4 +16,14 @@ export class Token {
         });
         return token;
     }
+
+    async generateUtilToken(jwtPayload: JwtPayload) {
+        const expirationTimeInSeconds = '10m';
+        const token = await this.jwtService.signAsync(jwtPayload, {
+            secret: process.env.UTIL_SECRET,
+            expiresIn: expirationTimeInSeconds,
+        });
+        return token;
+
+    }
 }

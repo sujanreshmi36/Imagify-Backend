@@ -7,11 +7,12 @@ import { hash } from 'src/helper/utils/hash';
 import { Token } from 'src/helper/utils/token';
 import { JwtService } from '@nestjs/jwt';
 import { AtStrategy } from 'src/middleware/strategies/jwt.strategy';
+import { UtStrategy } from 'src/middleware/strategies/ut.strategy';
 
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [AuthController],
-  providers: [AuthService, hash, Token, JwtService, AtStrategy],
+  providers: [AuthService, hash, Token, JwtService, AtStrategy, UtStrategy],
 })
 export class AuthModule { }
