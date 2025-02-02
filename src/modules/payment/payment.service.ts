@@ -82,42 +82,47 @@ export class PaymentService {
     return hash;
   }
 
-
   async changePayment(userId: string, token: string) {
     const decodeEsewaResponse = (token: string): any => {
       const jsonString = Buffer.from(token, 'base64').toString('utf-8');
       return JSON.parse(jsonString);
     };
+
     const decodedData = decodeEsewaResponse(token);
     const { transaction_uuid } = decodedData;
 
+    if (!transaction_uuid) {
+      throw new BadRequestException("Invalid token format.");
+    }
+
     try {
       const user = await this.userRepo.findOne({ where: { id: userId } });
-      if (user) {
-        const payment = await this.paymentRepo.findOne({ where: { user: { id: userId }, id: transaction_uuid } });
-        console.log(payment);
-
-        if (payment) {
-          payment.payment = true;
-          await this.paymentRepo.save(payment);
-          if (user.creditBalance !== 0) {
-            user.creditBalance += payment.credits;
-          } else {
-            user.creditBalance = payment.credits
-          }
-
-          await this.userRepo.save(user);
-          return {
-            status: true
-          }
-        } else {
-          throw new BadRequestException("payment not found")
-        }
-      } else {
-        throw new BadRequestException("user not found")
+      if (!user) {
+        throw new BadRequestException("User not found.");
       }
+
+      const payment = await this.paymentRepo.findOne({ where: { user: { id: userId }, id: transaction_uuid } });
+      if (!payment) {
+        throw new BadRequestException("Payment not found.");
+      }
+
+      if (payment.payment) {
+        throw new BadRequestException("Payment already processed.");
+      }
+
+      payment.payment = true;
+      await this.paymentRepo.save(payment);
+
+      // Update credit balance
+      user.creditBalance += payment.credits;
+
+      await this.userRepo.save(user);
+
+      return { status: true };
     } catch (e) {
-      throw new BadRequestException(e.message);
+      console.error("Payment update error:", e);
+      throw new BadRequestException("Payment update failed. Please try again.");
     }
   }
+
 }
