@@ -19,11 +19,6 @@ export class MailDto {
 }
 
 export class passwordDto {
-    @IsOptional()
-    @IsString()
-    // @Min(6)
-    @ApiProperty()
-    oldPassword?: string
 
     @IsString()
     // @Min(6)

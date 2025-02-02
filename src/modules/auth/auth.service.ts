@@ -123,13 +123,9 @@ export class AuthService {
   }
 
   async updatePassword(user: JwtPayload, passwordDto: passwordDto) {
-    const { oldPassword, newPassword } = passwordDto;
+    const { newPassword } = passwordDto;
     const authUser = await this.userRepo.findOne({ where: { id: user.id } });
     if (authUser) {
-      const isValid = await this.hash.verifyHashing(authUser?.password, oldPassword ?? "");
-      if (!isValid) {
-        throw new ForbiddenException('Invalid old password');
-      }
       const hash = await this.hash.value(newPassword);
       await this.userRepo.update({ id: authUser.id }, { password: hash });
       return true;
