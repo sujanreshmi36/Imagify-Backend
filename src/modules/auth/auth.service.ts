@@ -123,7 +123,7 @@ export class AuthService {
   }
 
   async updatePassword(user: JwtPayload, passwordDto: passwordDto) {
-    const { newPassword } = passwordDto;
+    const newPassword = passwordDto.password;
     const authUser = await this.userRepo.findOne({ where: { id: user.id } });
     if (authUser) {
       const hash = await this.hash.value(newPassword);
@@ -205,33 +205,33 @@ export class AuthService {
   `;
   }
 
-  // // reset-password
-  // async reset(newPassword: string, token: string) {
-  //   try {
-  //     if (!token) {
-  //       throw new NotFoundException("Token not found");
-  //     } else {
-  //       token = token.split(' ')[1];
-  //       const passkey = this.config.get<string>('PASS_KEY');
-  //       let decodedToken;
-  //       decodedToken = jwt.verify(token, passkey)
-  //       if (!decodedToken) {
-  //         return ({ message: "Token verification failed" });
+  // reset-password
+  //   async reset(newPassword: string, token: string) {
+  //     try {
+  //       if (!token) {
+  //         throw new NotFoundException("Token not found");
   //       } else {
-  //         const { email } = decodedToken;
-  //         const salt = 10;
-  //         const hashedPassword = await newPassword.hash(newPassword, salt);
-  //         const user = await this.userRepo.findOne({ where: { email: email } });
-  //         user.password = hashedPassword;
-  //         return {
-  //           data: await this.userRepo.save(user),
-  //           message: "Password changed successfully"
+  //         token = token.split(' ')[1];
+  //         const passkey = this.config.get<string>('PASS_KEY');
+  //         let decodedToken;
+  //         decodedToken = jwt.verify(token, passkey)
+  //         if (!decodedToken) {
+  //           return ({ message: "Token verification failed" });
+  //         } else {
+  //           const { email } = decodedToken;
+  //           const salt = 10;
+  //           const hashedPassword = await newPassword.hash(newPassword, salt);
+  //           const user = await this.userRepo.findOne({ where: { email: email } });
+  //           user.password = hashedPassword;
+  //           return {
+  //             data: await this.userRepo.save(user),
+  //             message: "Password changed successfully"
+  //           }
   //         }
   //       }
+  //     } catch (e) {
+  //       throw new BadRequestException(e.message);
   //     }
-  //   } catch (e) {
-  //     throw new BadRequestException(e.message);
-  //   }
 
-  // }
+  //   }
 }

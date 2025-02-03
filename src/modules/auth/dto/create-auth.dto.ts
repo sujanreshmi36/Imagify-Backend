@@ -23,5 +23,5 @@ export class passwordDto {
     @IsString()
     // @Min(6)
     @ApiProperty()
-    newPassword: string
+    password: string
 }
