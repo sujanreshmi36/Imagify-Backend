@@ -112,7 +112,7 @@ export class AuthService {
       id: existingUser.id,
       email: existingUser.email,
     });
-    const frontURL = `${process.env.frontURL}?token=${token}`;
+    const frontURL = `${process.env.frontURL}/reset?token=${token}`;
     try {
       sendMail(body.email, 'Password Reset', this.passwordTemplate(frontURL));
     } catch (error) {
